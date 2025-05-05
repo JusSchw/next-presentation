@@ -9,7 +9,6 @@ const SESSION_COOKIE_NAME = "session";
 export async function newSession(password?: string): Promise<boolean> {
   if (password === PASSWORD) {
     (await cookies()).set(SESSION_COOKIE_NAME, hash(), {
-      expires: new Date(Date.now() + 86400000),
       path: "/",
     });
     return true;

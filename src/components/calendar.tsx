@@ -1,16 +1,16 @@
+"use client";
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "./ui/separator";
-import { use } from "react";
-import { newSession, readSession } from "@/lib/server/session";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { useSession } from "@/lib/client/session";
 
 export function CalendarBody() {
-  const session = use(readSession());
-
+  const { session } = useSession();
   return (
-    <Card className="m-4 w-4xl">
+    <Card className="m-4 min-w-xl">
       <Tabs defaultValue="user" className="w-full">
         <CardHeader>
           <TabsList className="w-full">
@@ -41,11 +41,11 @@ export function CalendarAdmin() {
 }
 
 export function PasswordPrompt() {
+  const { newSession } = useSession();
   return (
     <form
       action={async (data: FormData) => {
-        "use server";
-        await newSession(data.get("password")?.toString());
+        newSession(data.get("password")?.toString());
       }}
     >
       <div className="flex justify-center gap-2 w-full">
