@@ -8,21 +8,21 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getAppointmentsInDay(
-  appointments: Appointment[],
+  appointments: (Appointment & { _id: string })[],
   day: Dayjs
-): number[] {
+): (Appointment & { _id: string })[] {
   const dayStart = day.startOf("day").valueOf();
   const dayEnd = day.endOf("day").valueOf();
 
-  return appointments.reduce<number[]>((acc, apo, index) => {
-    const overlaps =
-      (apo.from >= dayStart && apo.from <= dayEnd) ||
-      (apo.until >= dayStart && apo.until <= dayEnd) ||
-      (apo.from <= dayStart && apo.until >= dayEnd);
-
-    if (overlaps) acc.push(index);
-    return acc;
-  }, []);
+  return appointments
+    .filter((appo) => {
+      const overlaps =
+        (appo.from >= dayStart && appo.from <= dayEnd) ||
+        (appo.until >= dayStart && appo.until <= dayEnd) ||
+        (appo.from <= dayStart && appo.until >= dayEnd);
+      return overlaps;
+    })
+    .sort((a, b) => a.from - b.from);
 }
 
 export function isAppointmentInDay(

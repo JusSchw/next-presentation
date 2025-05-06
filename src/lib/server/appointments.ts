@@ -9,12 +9,12 @@ import dayjs from "dayjs";
 
 // USER ACTIONS
 
-export async function requestAppointment(apo: Appointment): Promise<boolean> {
-  if (!isAppointmentInDay(apo)) {
+export async function requestAppointment(appo: Appointment): Promise<boolean> {
+  if (!isAppointmentInDay(appo)) {
     return false;
   }
 
-  await db.collection("requested").insertOne(apo);
+  await db.collection("requested").insertOne(appo);
   return true;
 }
 
@@ -32,9 +32,9 @@ export async function getAppointments(
     .find({})
     .toArray();
 
-  return appointments.map((apo) => ({
-    ...apo,
-    _id: apo._id.toHexString(),
+  return appointments.map((appo) => ({
+    ...appo,
+    _id: appo._id.toHexString(),
   }));
 }
 
@@ -43,12 +43,12 @@ export async function acceptAppointment(_id: string): Promise<boolean> {
     return false;
   }
 
-  const apo = await db
+  const appo = await db
     .collection("requested")
     .findOne({ _id: new ObjectId(_id) });
 
-  if (apo) {
-    await db.collection("scheduled").insertOne(apo);
+  if (appo) {
+    await db.collection("scheduled").insertOne(appo);
     await db.collection("requested").deleteOne({ _id: new ObjectId(_id) });
 
     return true;

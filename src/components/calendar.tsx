@@ -9,7 +9,7 @@ import { useSession } from "@/lib/client/session";
 import { useEffect, useState } from "react";
 import { useCalendar } from "@/lib/client/calendar";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { cn, getAppointmentsInDay } from "@/lib/utils";
 import dayjs from "dayjs";
 
 export function CalendarBody() {
@@ -56,7 +56,13 @@ function FullCalendar({
     prevYear,
     nextMonth,
     nextYear,
+    getAppointments,
+    adminAppointments,
   } = useCalendar();
+
+  useEffect(() => {
+    getAppointments();
+  }, [getAppointments]);
 
   const daysInMonth = currentDate.daysInMonth();
 
@@ -150,12 +156,25 @@ function FullCalendar({
                   <div
                     onClick={() => selectDate(cell.fullDate)}
                     className={cn(
-                      "flex justify-center items-center bg-background rounded-md size-16 hover:scale-110 transition-transform cursor-default",
+                      "flex justify-center items-center bg-background relative rounded-md size-16 hover:scale-110 transition-transform cursor-default",
                       selectedDate == cell.fullDate && "bg-accent"
                     )}
                     key={cell.fullDate}
                   >
                     <p className="text-center">{cell.day}</p>
+                    {(() => {
+                      const scheduled = getAppointmentsInDay(
+                        adminAppointments?.scheduled || [],
+                        dayjs(cell.fullDate)
+                      );
+                      return scheduled.length > 0 && !isUser ? (
+                        <span className="top-[-4px] left-[-4px] z-10 absolute flex font-mono text-green-300">
+                          {scheduled.length}
+                        </span>
+                      ) : (
+                        <></>
+                      );
+                    })()}
                   </div>
                 );
               })}
@@ -164,8 +183,93 @@ function FullCalendar({
         </div>
       </div>
       <Separator orientation="vertical" />
-      <div>{isUser ? <AppointmentPrompt /> : <></>}</div>
+      <div>{isUser ? <AppointmentPrompt /> : <AppointmentManager />}</div>
     </section>
+  );
+}
+
+function AppointmentManager() {
+  const {
+    selectedDate,
+    adminAppointments,
+    acceptAppointment,
+    deleteAppointment,
+  } = useCalendar();
+
+  const requested = adminAppointments?.requested || [];
+
+  const scheduled = getAppointmentsInDay(
+    adminAppointments?.scheduled || [],
+    dayjs(selectedDate)
+  );
+
+  return (
+    <Tabs defaultValue="requested">
+      <TabsList className="gap-1">
+        <TabsTrigger
+          disabled={!selectedDate}
+          className="w-24"
+          value="scheduled"
+        >
+          Termine <span className="">{scheduled.length}</span>
+        </TabsTrigger>
+        <TabsTrigger className="w-24" value="requested">
+          Anfragen <span className="">{requested.length}</span>
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent className="" value="scheduled">
+        <div className="space-y-1 w-[202px] h-[485px] overflow-y-auto">
+          {scheduled.map((appo) => (
+            <div
+              key={appo._id}
+              className="space-y-1 shadow p-2 border border-border rounded-md"
+            >
+              <div className="space-y-1 overflow-x-auto">
+                <div className="font-semibold">{appo.title}</div>
+                <div>{appo.descr}</div>
+              </div>
+              <Separator className="my-4" />
+              <Button
+                className="bg-gradient-to-t from-red-300 to-red-600 p-1 border border-border w-full hover:scale-105 transition-transform"
+                onClick={() => deleteAppointment(appo._id, "requested")}
+              >
+                Löschen
+              </Button>
+            </div>
+          ))}
+        </div>
+      </TabsContent>
+      <TabsContent className="" value="requested">
+        <div className="space-y-1 w-[202px] h-[485px] overflow-y-auto">
+          {requested.map((appo) => (
+            <div
+              key={appo._id}
+              className="space-y-1 shadow p-2 border border-border rounded-md"
+            >
+              <div className="space-y-1 overflow-x-auto">
+                <div className="font-semibold">{appo.title}</div>
+                <div>{appo.descr}</div>
+              </div>
+              <Separator className="my-4" />
+              <div className="flex gap-2">
+                <Button
+                  className="flex-grow bg-gradient-to-t from-green-300 to-green-600 p-1 border border-border hover:scale-105 transition-transform"
+                  onClick={() => acceptAppointment(appo._id)}
+                >
+                  Annehmen
+                </Button>
+                <Button
+                  className="flex-grow bg-gradient-to-t from-red-300 to-red-600 p-1 border border-border hover:scale-105 transition-transform"
+                  onClick={() => deleteAppointment(appo._id, "requested")}
+                >
+                  Ablehnen
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 }
 
@@ -213,7 +317,7 @@ function AppointmentPrompt() {
 
   return (
     <div className="flex flex-col justify-end gap-2 h-full">
-      <div className="flex gap-2">
+      <div className="flex gap-2 w-[202px]">
         <Input
           disabled={!selectedDate}
           type="time"

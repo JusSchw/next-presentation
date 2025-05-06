@@ -16,7 +16,7 @@ type useCalendarState = {
     requested: (Appointment & { _id: string })[];
   };
 
-  requestAppointment: (apo: Appointment) => void;
+  requestAppointment: (appo: Appointment) => void;
 
   getAppointments: () => void;
   acceptAppointment: (_id: string) => void;
@@ -34,8 +34,8 @@ export const useCalendar = create<useCalendarState>((set) => ({
   selectedDate: undefined,
   hiddenAppointments: [],
 
-  requestAppointment: (apo: Appointment) => {
-    requestAppointment(apo).then((result) => {
+  requestAppointment: (appo: Appointment) => {
+    requestAppointment(appo).then((result) => {
       set((state) => {
         if (result) {
           state.getAppointments();
