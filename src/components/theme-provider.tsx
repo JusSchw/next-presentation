@@ -2,6 +2,11 @@
 
 import dynamic from "next/dynamic";
 import * as React from "react";
+import dayjs from "dayjs";
+import "dayjs/locale/de";
+
+dayjs.locale("de");
+
 const NextThemesProvider = dynamic(
   () => import("next-themes").then((e) => e.ThemeProvider),
   {
