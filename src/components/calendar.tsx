@@ -334,7 +334,7 @@ function AppointmentPrompt() {
         <Input
           disabled={!selectedDate}
           type="time"
-          value={dayjs(appointment.from).format("HH:mm")}
+          value={appointment.from}
           className="w-24"
           onChange={(e) =>
             setAppointment({
@@ -346,7 +346,7 @@ function AppointmentPrompt() {
         <Input
           disabled={!selectedDate}
           type="time"
-          value={dayjs(appointment.until).format("HH:mm")}
+          value={appointment.until}
           className="w-24"
           onChange={(e) =>
             setAppointment({
