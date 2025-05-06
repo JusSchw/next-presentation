@@ -294,24 +294,29 @@ function AppointmentPrompt() {
     title: "",
   });
 
-  const disable =
-    !selectedDate || appointment.from === "" || appointment.until === "";
+  const disable = (() => {
+    if (!selectedDate || !appointment.from || !appointment.until) return true;
+
+    const [fromH, fromM] = appointment.from.split(":").map(Number);
+    const [untilH, untilM] = appointment.until.split(":").map(Number);
+
+    return fromH * 60 + fromM >= untilH * 60 + untilM;
+  })();
 
   const handleSubmit = () => {
     if (disable) return;
 
     const baseDate = dayjs(selectedDate).startOf("day");
 
-    const fromDateTime = baseDate
+    const fromMillis = baseDate
       .hour(Number(appointment.from.split(":")[0]))
-      .minute(Number(appointment.from.split(":")[1]));
+      .minute(Number(appointment.from.split(":")[1]))
+      .valueOf();
 
-    const untilDateTime = baseDate
+    const untilMillis = baseDate
       .hour(Number(appointment.until.split(":")[0]))
-      .minute(Number(appointment.until.split(":")[1]));
-
-    const fromMillis = fromDateTime.valueOf();
-    const untilMillis = untilDateTime.valueOf();
+      .minute(Number(appointment.until.split(":")[1]))
+      .valueOf();
 
     requestAppointment({
       from: fromMillis,
