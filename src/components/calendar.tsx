@@ -75,7 +75,7 @@ function FullCalendar({
       .map((_) => {
         const day = dayCounter++;
         if (day > 0 && day <= daysInMonth) {
-          const fullDate = currentDate.date(day).toDate().getTime();
+          const fullDate = currentDate.date(day).valueOf();
           return { day, fullDate };
         }
         return null;
@@ -148,7 +148,8 @@ function FullCalendar({
               {week.map((cell, j) => {
                 if (
                   !cell ||
-                  (onlyFuture && cell.fullDate < new Date().getTime())
+                  (onlyFuture &&
+                    cell.fullDate < dayjs().startOf("day").valueOf())
                 )
                   return <div key={j} className="size-16" />;
 
@@ -229,9 +230,14 @@ function AppointmentManager() {
                 <div>{appo.descr}</div>
               </div>
               <Separator className="my-4" />
+              <div className="flex justify-between px-6 text-muted-foreground">
+                <span>{dayjs(appo.from).format("HH:mm")}</span>-
+                <span>{dayjs(appo.until).format("HH:mm")}</span>
+              </div>
+              <Separator className="my-4" />
               <Button
-                className="bg-gradient-to-t from-red-300 to-red-600 p-1 border border-border w-full hover:scale-105 transition-transform"
-                onClick={() => deleteAppointment(appo._id, "requested")}
+                className="bg-gradient-to-t from-red-300 to-red-600 p-1 border border-border w-full font-semibold hover:scale-105 transition-transform"
+                onClick={() => deleteAppointment(appo._id, "scheduled")}
               >
                 Löschen
               </Button>
@@ -251,15 +257,20 @@ function AppointmentManager() {
                 <div>{appo.descr}</div>
               </div>
               <Separator className="my-4" />
+              <div className="flex justify-between px-6 text-muted-foreground">
+                <span>{dayjs(appo.from).format("HH:mm")}</span>-
+                <span>{dayjs(appo.until).format("HH:mm")}</span>
+              </div>
+              <Separator className="my-4" />
               <div className="flex gap-2">
                 <Button
-                  className="flex-grow bg-gradient-to-t from-green-300 to-green-600 p-1 border border-border hover:scale-105 transition-transform"
+                  className="flex-grow bg-gradient-to-t from-green-300 to-green-600 p-1 border border-border font-semibold hover:scale-105 transition-transform"
                   onClick={() => acceptAppointment(appo._id)}
                 >
                   Annehmen
                 </Button>
                 <Button
-                  className="flex-grow bg-gradient-to-t from-red-300 to-red-600 p-1 border border-border hover:scale-105 transition-transform"
+                  className="flex-grow bg-gradient-to-t from-red-300 to-red-600 p-1 border border-border font-semibold hover:scale-105 transition-transform"
                   onClick={() => deleteAppointment(appo._id, "requested")}
                 >
                   Ablehnen
@@ -289,11 +300,13 @@ function AppointmentPrompt() {
   const handleSubmit = () => {
     if (disable) return;
 
-    const fromDateTime = dayjs(selectedDate)
+    const baseDate = dayjs(selectedDate).startOf("day");
+
+    const fromDateTime = baseDate
       .hour(Number(appointment.from.split(":")[0]))
       .minute(Number(appointment.from.split(":")[1]));
 
-    const untilDateTime = dayjs(selectedDate)
+    const untilDateTime = baseDate
       .hour(Number(appointment.until.split(":")[0]))
       .minute(Number(appointment.until.split(":")[1]));
 
@@ -321,7 +334,7 @@ function AppointmentPrompt() {
         <Input
           disabled={!selectedDate}
           type="time"
-          value={appointment.from}
+          value={dayjs(appointment.from).format("HH:mm")}
           className="w-24"
           onChange={(e) =>
             setAppointment({
@@ -333,7 +346,7 @@ function AppointmentPrompt() {
         <Input
           disabled={!selectedDate}
           type="time"
-          value={appointment.until}
+          value={dayjs(appointment.until).format("HH:mm")}
           className="w-24"
           onChange={(e) =>
             setAppointment({
@@ -366,7 +379,11 @@ function AppointmentPrompt() {
           })
         }
       />
-      <Button disabled={disable} onClick={handleSubmit}>
+      <Button
+        disabled={disable}
+        onClick={handleSubmit}
+        className="bg-gradient-to-t from-green-300 to-green-600 p-1 border border-border font-semibold hover:scale-105 transition-transform"
+      >
         Senden
       </Button>
     </div>
