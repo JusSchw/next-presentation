@@ -13,12 +13,12 @@ export default function Home() {
       content: "React (mit Next.js)",
     },
     {
-      title: "Styling",
-      content: "Tailwind CSS und Shadcn",
+      title: "Datenbank",
+      content: "Mongodb",
     },
     {
-      title: "Session Handling",
-      content: "Admin-Login per Passwort und Cookie Session",
+      title: "Styling",
+      content: "Tailwind CSS und Shadcn",
     },
     {
       title: "Hosting",
