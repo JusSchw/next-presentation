@@ -9,7 +9,7 @@ import { useSession } from "@/lib/client/session";
 import { useEffect, useState } from "react";
 import { useCalendar } from "@/lib/client/calendar";
 import { Textarea } from "@/components/ui/textarea";
-import { cn, getAppointmentsInDay } from "@/lib/utils";
+import { cn, getAppointmentsInDay, sortAppointmentsPerDay } from "@/lib/utils";
 import dayjs from "dayjs";
 
 export function CalendarBody() {
@@ -197,12 +197,12 @@ function AppointmentManager() {
     deleteAppointment,
   } = useCalendar();
 
-  const requested = adminAppointments?.requested || [];
-
   const scheduled = getAppointmentsInDay(
     adminAppointments?.scheduled || [],
     dayjs(selectedDate)
   );
+
+  const requested = sortAppointmentsPerDay(adminAppointments?.requested || []);
 
   return (
     <Tabs defaultValue="requested">
@@ -220,63 +220,87 @@ function AppointmentManager() {
       </TabsList>
       <TabsContent className="" value="scheduled">
         <div className="space-y-1 w-[202px] h-[485px] overflow-y-auto">
-          {scheduled.map((appo) => (
-            <div
-              key={appo._id}
-              className="space-y-1 shadow p-2 border border-border rounded-md"
-            >
-              <div className="space-y-1 overflow-x-auto">
-                <div className="font-semibold">{appo.title}</div>
-                <div>{appo.descr}</div>
-              </div>
-              <Separator className="my-4" />
-              <div className="flex justify-between px-6 text-muted-foreground">
-                <span>{dayjs(appo.from).format("HH:mm")}</span>-
-                <span>{dayjs(appo.until).format("HH:mm")}</span>
-              </div>
-              <Separator className="my-4" />
-              <Button
-                className="bg-gradient-to-t from-red-300 to-red-600 p-1 border border-border w-full font-semibold hover:scale-105 transition-transform"
-                onClick={() => deleteAppointment(appo._id, "scheduled")}
+          {scheduled.map((appo, idx) => (
+            <>
+              {idx === 0 && (
+                <div
+                  key={`${appo._id}-${appo.from}`}
+                  className="text-muted-foreground text-center"
+                >
+                  {dayjs(appo.from).format("dddd, DD.MM.YYYY")}
+                </div>
+              )}
+              <div
+                key={appo._id}
+                className="space-y-1 shadow p-2 border border-border rounded-md"
               >
-                Löschen
-              </Button>
-            </div>
+                <div className="space-y-1 overflow-x-auto">
+                  <div className="font-semibold">{appo.title}</div>
+                  <div>{appo.descr}</div>
+                </div>
+                <Separator className="my-4" />
+                <div className="flex justify-between px-6 text-muted-foreground">
+                  <span>{dayjs(appo.from).format("HH:mm")}</span>-
+                  <span>{dayjs(appo.until).format("HH:mm")}</span>
+                </div>
+                <Separator className="my-4" />
+                <Button
+                  className="bg-gradient-to-t from-red-300 to-red-600 p-1 border border-border w-full font-semibold hover:scale-105 transition-transform"
+                  onClick={() => deleteAppointment(appo._id, "scheduled")}
+                >
+                  Löschen
+                </Button>
+              </div>
+            </>
           ))}
         </div>
       </TabsContent>
       <TabsContent className="" value="requested">
         <div className="space-y-1 w-[202px] h-[485px] overflow-y-auto">
-          {requested.map((appo) => (
-            <div
-              key={appo._id}
-              className="space-y-1 shadow p-2 border border-border rounded-md"
-            >
-              <div className="space-y-1 overflow-x-auto">
-                <div className="font-semibold">{appo.title}</div>
-                <div>{appo.descr}</div>
-              </div>
-              <Separator className="my-4" />
-              <div className="flex justify-between px-6 text-muted-foreground">
-                <span>{dayjs(appo.from).format("HH:mm")}</span>-
-                <span>{dayjs(appo.until).format("HH:mm")}</span>
-              </div>
-              <Separator className="my-4" />
-              <div className="flex gap-2">
-                <Button
-                  className="flex-grow bg-gradient-to-t from-green-300 to-green-600 p-1 border border-border font-semibold hover:scale-105 transition-transform"
-                  onClick={() => acceptAppointment(appo._id)}
+          {requested.map((appo, idx) => (
+            <>
+              {(idx === 0 ||
+                !dayjs(appo.from).isSame(
+                  dayjs(requested[idx - 1].from),
+                  "day"
+                )) && (
+                <div
+                  key={`${appo._id}-${appo.from}`}
+                  className="text-muted-foreground text-center"
                 >
-                  Annehmen
-                </Button>
-                <Button
-                  className="flex-grow bg-gradient-to-t from-red-300 to-red-600 p-1 border border-border font-semibold hover:scale-105 transition-transform"
-                  onClick={() => deleteAppointment(appo._id, "requested")}
-                >
-                  Ablehnen
-                </Button>
+                  {dayjs(appo.from).format("dddd, DD.MM.YYYY")}
+                </div>
+              )}
+              <div
+                key={appo._id}
+                className="space-y-1 shadow p-2 border border-border rounded-md"
+              >
+                <div className="space-y-1 overflow-x-auto">
+                  <div className="font-semibold">{appo.title}</div>
+                  <div>{appo.descr}</div>
+                </div>
+                <Separator className="my-4" />
+                <div className="flex justify-between px-6 text-muted-foreground">
+                  <span>{dayjs(appo.from).format("HH:mm")}</span>-
+                  <span>{dayjs(appo.until).format("HH:mm")}</span>
+                </div>
+                <Separator className="my-4" />
+                <div className="flex gap-2">
+                  <Button
+                    className="flex-grow bg-gradient-to-t from-green-300 to-green-600 p-1 border border-border font-semibold hover:scale-105 transition-transform"
+                    onClick={() => acceptAppointment(appo._id)}
+                  >
+                    Annehmen
+                  </Button>
+                  <Button
+                    className="flex-grow bg-gradient-to-t from-red-300 to-red-600 p-1 border border-border font-semibold hover:scale-105 transition-transform"
+                    onClick={() => deleteAppointment(appo._id, "requested")}
+                  >
+                    Ablehnen
+                  </Button>
+                </div>
               </div>
-            </div>
+            </>
           ))}
         </div>
       </TabsContent>

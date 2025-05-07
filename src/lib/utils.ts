@@ -25,6 +25,12 @@ export function getAppointmentsInDay(
     .sort((a, b) => a.from - b.from);
 }
 
+export function sortAppointmentsPerDay(
+  appointments: (Appointment & { _id: string })[]
+): (Appointment & { _id: string })[] {
+  return appointments.sort((a, b) => a.from - b.from);
+}
+
 export function isAppointmentInDay(
   appointment: Appointment,
   day?: Dayjs
