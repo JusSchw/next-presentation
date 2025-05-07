@@ -55,6 +55,7 @@ export default function Home() {
     "Visuelles Ladefeedback bei Operationen",
     "Visuelle Bestätigung bei erfolgreicher Aktion",
     "Nicht verfügbare Zeiträume definieren",
+    "Responsive Design für Mobilgeräte",
   ];
 
   return (
