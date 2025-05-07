@@ -19,7 +19,7 @@ export function CalendarBody() {
     readSession();
   }, [readSession]);
   return (
-    <Card className="m-4">
+    <Card className="mx-auto w-min">
       <Tabs defaultValue="user" className="w-full">
         <CardHeader>
           <TabsList className="w-full">
