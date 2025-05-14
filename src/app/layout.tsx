@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Online-Terminplaner – Beispielprojekt für Doctronic",
+  title: "Online-Terminplaner – Beispielprojekt",
   description: "Ein schlanker Online-Terminplaner",
 };
 
