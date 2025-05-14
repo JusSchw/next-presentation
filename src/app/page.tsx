@@ -60,9 +60,7 @@ export default function Home() {
 
   return (
     <main className="mx-auto w-[800px]">
-      <h1 className="py-8 text-4xl text-center">
-        Justins Beispielprojekt für Doctronic
-      </h1>
+      <h1 className="py-8 text-4xl text-center">Justins Beispielprojekt</h1>
       <Separator />
       <section className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 py-8 text-sm">
         {blocks.map((block, idx) => (
